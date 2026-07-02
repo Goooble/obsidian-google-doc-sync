@@ -1,26 +1,19 @@
 import { Notice, Plugin } from 'obsidian';
-import {
-	DEFAULT_SETTINGS,
-	GdocsSyncPluginSettings,
-	GdocsSyncSettingsTab,
-} from './settings';
+import { DEFAULT_SETTINGS, GdocsSyncSettingsTab } from './settings';
 import { registerCommands } from './commands';
+import { SyncManager } from './sync/syncManager';
 
-export interface LinkedNote {
-	googleDocID: string;
-	Hash: string;
-}
-
-export interface PluginData {
-	settings: GdocsSyncPluginSettings;
-	files: Record<string, LinkedNote>;
-}
+import type { PluginData } from './types';
+import DataStore from './data';
 
 export default class GdocsSyncPlugin extends Plugin {
 	data!: PluginData;
-
+	DataStore!: DataStore;
+	syncManager!: SyncManager;
 	async onload() {
 		await this.loadSettings();
+		this.DataStore = new DataStore(this);
+		this.syncManager = new SyncManager(this);
 
 		new Notice('Google sync plugin loaded.');
 

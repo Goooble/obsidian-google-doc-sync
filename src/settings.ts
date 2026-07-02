@@ -1,10 +1,8 @@
 import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
+
 import GdocsSyncPlugin from './main';
 
-export interface GdocsSyncPluginSettings {
-	clientID: string;
-	clientSecret: string;
-}
+import type { GdocsSyncPluginSettings } from './types';
 
 export const DEFAULT_SETTINGS: GdocsSyncPluginSettings = {
 	clientID: '232',

@@ -14,6 +14,7 @@ export function registerCommands(plugin: GdocsSyncPlugin): void {
 
 			if (!checking) {
 				new Notice(`Syncing file: ${activeFile.path}`);
+				void plugin.syncManager.sync(activeFile);
 			}
 
 			return true;
