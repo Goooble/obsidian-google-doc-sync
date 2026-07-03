@@ -36,22 +36,23 @@ export function registerCommands(plugin: GdocsSyncPlugin): void {
 						new CreateModal(plugin.app, (result: string) => {
 							if (result.trim()) {
 								new Notice(`Created document draft: ${result}`);
-								plugin.data.files[activeFile.path] = {
-									googleDocID: result,
-									Hash: '',
-								};
-								void plugin.saveSettings();
+								void plugin.syncManager.linkFile(
+									activeFile,
+									result,
+									false,
+								);
 							}
 						}).open();
 					} else if (result === 2) {
 						new LinkModal(plugin.app, (result: string) => {
 							if (result.trim()) {
 								new Notice(`Linked document: ${result}`);
-								plugin.data.files[activeFile.path] = {
-									googleDocID: result,
-									Hash: '',
-								};
-								void plugin.saveSettings();
+								void plugin.syncManager.linkFile(
+									//TODO: is void causing problems here? should we await it?
+									activeFile,
+									result,
+									true,
+								);
 							}
 						}).open();
 					}
@@ -73,8 +74,7 @@ export function registerCommands(plugin: GdocsSyncPlugin): void {
 
 			if (!checking) {
 				if (plugin.data.files[activeFile.path]) {
-					delete plugin.data.files[activeFile.path];
-					void plugin.saveSettings();
+					void plugin.syncManager.unlinkFile(activeFile);
 					new Notice(`Unlinked document from: ${activeFile.path}`);
 				}
 			}

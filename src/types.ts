@@ -1,6 +1,6 @@
 export interface LinkedNote {
 	googleDocID: string;
-	Hash: string;
+	hash: string;
 }
 
 export interface PluginData {
@@ -8,20 +8,23 @@ export interface PluginData {
 	files: Record<string, LinkedNote>;
 }
 
-export interface Metadata {
+export interface FileMetadata {
 	googleDocID: string;
-	Hash: string;
+	hash: string;
 }
-
-export interface SyncProvider {
-	upload(id: string, content: string): Promise<void>;
-
-	download(id: string): Promise<string>;
-
-	exists(id: string): Promise<boolean>;
+export interface FileMetadata {
+	googleDocID: string;
+	hash: string;
 }
 
 export interface GdocsSyncPluginSettings {
 	clientID: string;
 	clientSecret: string;
+}
+
+export interface SyncProvider {
+	upload(id: string, content: string): Promise<void>;
+	download(id: string): Promise<string>;
+	create(name: string, content: string): Promise<string>;
+	delete(name: string): Promise<void>;
 }

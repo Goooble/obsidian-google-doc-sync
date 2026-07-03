@@ -5,6 +5,7 @@ import { SyncManager } from './sync/syncManager';
 
 import type { PluginData } from './types';
 import DataStore from './data';
+import { LocalProvider } from './sync/syncProvider';
 
 export default class GdocsSyncPlugin extends Plugin {
 	data!: PluginData;
@@ -13,7 +14,7 @@ export default class GdocsSyncPlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 		this.DataStore = new DataStore(this);
-		this.syncManager = new SyncManager(this);
+		this.syncManager = new SyncManager(this, new LocalProvider(this));
 
 		new Notice('Google sync plugin loaded.');
 
@@ -35,7 +36,6 @@ export default class GdocsSyncPlugin extends Plugin {
 	onunload() {}
 
 	async loadSettings() {
-		console.log('Loading settings...');
 		this.data = Object.assign(
 			{},
 			{ settings: DEFAULT_SETTINGS, files: {} },
