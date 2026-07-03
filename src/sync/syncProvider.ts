@@ -10,8 +10,6 @@ export class LocalProvider implements SyncProvider {
 		new Notice(`Uploading content for ID: ${id}`);
 		const file = this.plugin.app.vault.getAbstractFileByPath(id + '.md');
 		if (file instanceof TFile) {
-			console.log(file);
-			console.log(content);
 			return await this.plugin.app.vault.modify(file, content);
 		} else {
 			return Promise.reject(new Error(`File ${id} not found`));
@@ -29,7 +27,6 @@ export class LocalProvider implements SyncProvider {
 	}
 	async create(name: string, content: string): Promise<string> {
 		// Implementation for creating a new file
-		console.log(`Creating file with name: ${name}`);
 		const file = await this.plugin.app.vault.create(
 			'remote/' + name + '.md',
 			content,

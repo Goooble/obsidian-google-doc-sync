@@ -9,11 +9,10 @@ export class SyncManager {
 	) {}
 	async sync(file: TFile) {
 		//TODO: should we check if the file is linked first? maybe not, just sync it anyway
+		const data = await this.plugin.DataStore.get(file.path);
 		const content = await this.plugin.app.vault.read(file);
 
-		if (
-			(await hash(content)) !== this.plugin.DataStore.getHash(file.path)
-		) {
+		if ((await hash(content)) !== data.hash) {
 			new Notice('Must be synced');
 			await this.syncProvider.upload(
 				this.plugin.DataStore.getID(file.path),
@@ -34,7 +33,7 @@ export class SyncManager {
 		let googleDocID: string;
 		if (linked) {
 			googleDocID = nameOrID;
-			//upload the content to the existing google doc
+			//you can just call sync for uploading next time TODO
 			await this.syncProvider.upload(googleDocID, content);
 		} else {
 			googleDocID = await this.syncProvider.create(nameOrID, content);
