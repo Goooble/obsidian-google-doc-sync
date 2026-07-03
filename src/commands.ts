@@ -4,8 +4,8 @@ import { CreateModal, LinkModal, NewOrExistingModal } from './modals';
 
 export function registerCommands(plugin: GdocsSyncPlugin): void {
 	plugin.addCommand({
-		id: 'sync-file',
-		name: 'Sync file',
+		id: 'upload-file',
+		name: 'Upload file',
 		checkCallback: (checking: boolean) => {
 			const activeFile = plugin.app.workspace.getActiveFile();
 			if (!activeFile) {
@@ -13,8 +13,25 @@ export function registerCommands(plugin: GdocsSyncPlugin): void {
 			}
 
 			if (!checking) {
-				new Notice(`Syncing file: ${activeFile.path}`);
-				void plugin.syncManager.sync(activeFile);
+				new Notice(`Uploading file: ${activeFile.path}`);
+				void plugin.syncManager.upload(activeFile);
+			}
+
+			return true;
+		},
+	});
+	plugin.addCommand({
+		id: 'download-file',
+		name: 'Download file',
+		checkCallback: (checking: boolean) => {
+			const activeFile = plugin.app.workspace.getActiveFile();
+			if (!activeFile) {
+				return false;
+			}
+
+			if (!checking) {
+				new Notice(`Downloading file: ${activeFile.path}`);
+				void plugin.syncManager.download(activeFile);
 			}
 
 			return true;

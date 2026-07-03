@@ -7,13 +7,18 @@ export class SyncManager {
 		private plugin: GdocsSyncPlugin,
 		private syncProvider: SyncProvider,
 	) {}
-	async sync(file: TFile) {
-		//TODO: should we check if the file is linked first? maybe not, just sync it anyway
-		const data = await this.plugin.DataStore.get(file.path);
+	async upload(file: TFile) {
+		let data;
+		try {
+			data = await this.plugin.DataStore.get(file.path);
+		} catch (e) {
+			new Notice(`File ${file.path} is not linked to a Google Doc`);
+			return;
+		}
 		const content = await this.plugin.app.vault.read(file);
 
 		if ((await hash(content)) !== data.hash) {
-			new Notice('Must be synced');
+			new Notice('Must be uploaded');
 			await this.syncProvider.upload(
 				this.plugin.DataStore.getID(file.path),
 				content,
@@ -28,8 +33,44 @@ export class SyncManager {
 		}
 	}
 
+	async download(file: TFile) {
+		let data;
+		try {
+			data = await this.plugin.DataStore.get(file.path);
+		} catch (e) {
+			//notices is fine here, even though its UI
+			new Notice(`File ${file.path} is not linked to a Google Doc`);
+			return;
+		}
+		let content;
+		try {
+			content = await this.syncProvider.download(data.googleDocID);
+		} catch (e) {
+			new Notice(`Error downloading file ${file.path}: ${e}`);
+			return;
+		}
+
+		if ((await hash(content)) !== data.hash) {
+			new Notice('Must be downloaded');
+			await this.plugin.app.vault.modify(file, content);
+			//after syncing, update the hash in the data store
+			await this.plugin.DataStore.saveHash(
+				file.path,
+				await hash(content),
+			);
+		} else {
+			new Notice('No changes');
+		}
+	}
+
 	async linkFile(file: TFile, nameOrID: string, linked: boolean) {
-		const content = await this.plugin.app.vault.read(file);
+		let content;
+		try {
+			content = await this.plugin.app.vault.read(file);
+		} catch (e) {
+			new Notice(`Error reading file ${file.path}: ${e}`);
+			return;
+		}
 		let googleDocID: string;
 		if (linked) {
 			googleDocID = nameOrID;

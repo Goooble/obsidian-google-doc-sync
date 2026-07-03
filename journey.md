@@ -22,3 +22,14 @@ What data should Sync manager have access to and why does plugin.data need a dat
 but tehn save and load are defined on the plugin :sob: what even is going on software is so hard
 
 you konw we dont care king, we move on. I dont have enough experience to figure this shit out but refactoring is always a possiblity
+
+# Local provider
+
+woah so much fun. the idea of implementing the sync manager with a simplified mock local provider is really fucking cool. I should remember this patter. So later i can swap local provider with an actual GDocs api
+
+I guess the important idea is the local provider should act like a stub, or should be simple enough so that you can get teh core logic down
+
+# Keep UI and Business separate!
+
+Do not mix up the Commands and sync manager, both should have their own error handling always.
+Commands are only one way to access the sync manager, so the manager should remember that and do its own error handling no matter what.
