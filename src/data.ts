@@ -11,21 +11,9 @@ export default class DataStore {
 		return this.plugin.data.files[file];
 	}
 
-	async set(file: string, data: LinkedNote) {}
-
-	async saveHash(file: string, hash: string) {
-		if (!this.plugin.data.files[file]) {
-			throw new Error(`File ${file} not found in plugin data`);
-		}
-		this.plugin.data.files[file].hash = hash;
+	async set(file: string, data: LinkedNote) {
+		this.plugin.data.files[file] = data;
 		await this.plugin.saveSettings();
-	}
-
-	getHash(file: string) {
-		if (!this.plugin.data.files[file]) {
-			throw new Error(`File ${file} not found in plugin data`);
-		}
-		return this.plugin.data.files[file].hash;
 	}
 
 	async addFile(file: string, googleDocID: string, hash: string) {
@@ -39,12 +27,5 @@ export default class DataStore {
 	async removeFile(file: string) {
 		delete this.plugin.data.files[file];
 		await this.plugin.saveSettings();
-	}
-
-	getID(file: string) {
-		if (!this.plugin.data.files[file]) {
-			throw new Error(`File ${file} not found in plugin data`);
-		}
-		return this.plugin.data.files[file].googleDocID;
 	}
 }

@@ -16,18 +16,18 @@ export class SyncManager {
 			return;
 		}
 		const content = await this.plugin.app.vault.read(file);
-
-		if ((await hash(content)) !== data.hash) {
+        let currentHash = await hash(content);
+		if (currentHash !== data.hash) {
 			new Notice('Must be uploaded');
 			await this.syncProvider.upload(
-				this.plugin.DataStore.getID(file.path),
+				data.googleDocID,
 				content,
 			);
 			//after syncing, update the hash in the data store
-			await this.plugin.DataStore.saveHash(
-				file.path,
-				await hash(content),
-			);
+			await this.plugin.DataStore.set(file.path, {
+                ...data,
+                hash: currentHash
+            });
 		} else {
 			new Notice('No changes');
 		}
@@ -46,38 +46,37 @@ export class SyncManager {
 		try {
 			content = await this.syncProvider.download(data.googleDocID);
 		} catch (e) {
-			new Notice(`Error downloading file ${file.path}: ${e}`);
+			new Notice(`Error downloading file ${file.path}`);
 			return;
 		}
-
-		if ((await hash(content)) !== data.hash) {
+        let currentHash = await hash(content);
+		if (currentHash !== data.hash) {
 			new Notice('Must be downloaded');
 			await this.plugin.app.vault.modify(file, content);
 			//after syncing, update the hash in the data store
-			await this.plugin.DataStore.saveHash(
-				file.path,
-				await hash(content),
-			);
+			await this.plugin.DataStore.set(file.path, {
+                ...data,
+                hash: currentHash
+            })
 		} else {
 			new Notice('No changes');
 		}
 	}
 
-	async linkFile(file: TFile, nameOrID: string, linked: boolean) {
+	async linkFile(file: TFile, name: string, isLinked: boolean) {
 		let content;
 		try {
 			content = await this.plugin.app.vault.read(file);
 		} catch (e) {
-			new Notice(`Error reading file ${file.path}: ${e}`);
+			new Notice(`Error reading file ${file.path}`);
 			return;
 		}
 		let googleDocID: string;
-		if (linked) {
-			googleDocID = nameOrID;
-			//you can just call sync for uploading next time TODO
-			await this.syncProvider.upload(googleDocID, content);
+		if (isLinked) {
+			new Notice("Already linked");
+            return;
 		} else {
-			googleDocID = await this.syncProvider.create(nameOrID, content);
+			googleDocID = await this.syncProvider.create(name, content);
 		}
 		await this.plugin.DataStore.addFile(
 			file.path,
