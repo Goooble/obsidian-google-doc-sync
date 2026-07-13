@@ -3,9 +3,15 @@ export interface LinkedNote {
 	hash: string;
 }
 
+export interface OAuthSessionData {
+	pendingVerifier?: string;
+	pendingState?: string;
+}
+
 export interface PluginData {
 	settings: GdocsSyncPluginSettings;
 	files: Record<string, LinkedNote>;
+	oauth?: OAuthSessionData;
 }
 
 export interface FileMetadata {

@@ -11,23 +11,20 @@ export class SyncManager {
 		let data;
 		try {
 			data = await this.plugin.DataStore.get(file.path);
-		} catch (e) {
+		} catch {
 			new Notice(`File ${file.path} is not linked to a Google Doc`);
 			return;
 		}
 		const content = await this.plugin.app.vault.read(file);
-        let currentHash = await hash(content);
+		let currentHash = await hash(content);
 		if (currentHash !== data.hash) {
 			new Notice('Must be uploaded');
-			await this.syncProvider.upload(
-				data.googleDocID,
-				content,
-			);
+			await this.syncProvider.upload(data.googleDocID, content);
 			//after syncing, update the hash in the data store
 			await this.plugin.DataStore.set(file.path, {
-                ...data,
-                hash: currentHash
-            });
+				...data,
+				hash: currentHash,
+			});
 		} else {
 			new Notice('No changes');
 		}
@@ -37,7 +34,7 @@ export class SyncManager {
 		let data;
 		try {
 			data = await this.plugin.DataStore.get(file.path);
-		} catch (e) {
+		} catch {
 			//notices is fine here, even though its UI
 			new Notice(`File ${file.path} is not linked to a Google Doc`);
 			return;
@@ -45,19 +42,19 @@ export class SyncManager {
 		let content;
 		try {
 			content = await this.syncProvider.download(data.googleDocID);
-		} catch (e) {
+		} catch {
 			new Notice(`Error downloading file ${file.path}`);
 			return;
 		}
-        let currentHash = await hash(content);
+		let currentHash = await hash(content);
 		if (currentHash !== data.hash) {
 			new Notice('Must be downloaded');
 			await this.plugin.app.vault.modify(file, content);
 			//after syncing, update the hash in the data store
 			await this.plugin.DataStore.set(file.path, {
-                ...data,
-                hash: currentHash
-            })
+				...data,
+				hash: currentHash,
+			});
 		} else {
 			new Notice('No changes');
 		}
@@ -67,14 +64,14 @@ export class SyncManager {
 		let content;
 		try {
 			content = await this.plugin.app.vault.read(file);
-		} catch (e) {
+		} catch {
 			new Notice(`Error reading file ${file.path}`);
 			return;
 		}
 		let googleDocID: string;
 		if (isLinked) {
-			new Notice("Already linked");
-            return;
+			new Notice('Already linked');
+			return;
 		} else {
 			googleDocID = await this.syncProvider.create(name, content);
 		}

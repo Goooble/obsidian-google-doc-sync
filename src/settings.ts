@@ -1,6 +1,7 @@
-import { App, PluginSettingTab, SecretComponent, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting } from 'obsidian';
 
 import GdocsSyncPlugin from './main';
+import { CLIENT_SECRET_KEY } from './auth/constants';
 
 import type { GdocsSyncPluginSettings } from './types';
 
@@ -21,7 +22,7 @@ export class GdocsSyncSettingsTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Client ID')
-			.setDesc('Enter your Google OAuth client ID')
+			.setDesc('Enter your Google OAUTH client ID')
 			.addText((text) =>
 				text
 					.setPlaceholder('Enter your client ID')
@@ -31,6 +32,25 @@ export class GdocsSyncSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					}),
 			);
+
+		new Setting(containerEl)
+			.setName('Client Secret')
+			.setDesc(
+				'Google OAuth Client Secret for your Web Application OAuth client.',
+			)
+			.addText((text) => {
+				text.setPlaceholder('Enter your client secret');
+				text.inputEl.type = 'password';
+				const secret =
+					this.plugin.app.secretStorage.getSecret(CLIENT_SECRET_KEY);
+				text.setValue(secret || '');
+				text.onChange(async (value) => {
+					await this.plugin.app.secretStorage.setSecret(
+						CLIENT_SECRET_KEY,
+						value,
+					);
+				});
+			});
 
 		new Setting(containerEl)
 			.setName('Login with Google')

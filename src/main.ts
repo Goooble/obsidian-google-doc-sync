@@ -1,4 +1,4 @@
-import { Notice, Plugin } from 'obsidian';
+import { Notice, Plugin, requestUrl } from 'obsidian';
 import { DEFAULT_SETTINGS, GdocsSyncSettingsTab } from './settings';
 import { registerCommands } from './commands';
 import { SyncManager } from './sync/syncManager';
@@ -21,8 +21,24 @@ export default class GdocsSyncPlugin extends Plugin {
 
 		new Notice('Google sync plugin loaded.');
 
-		this.addRibbonIcon('refresh-cw', 'Docs sync', () => {
+		this.addRibbonIcon('refresh-cw', 'Docs sync', async () => {
 			const activeFile = this.app.workspace.getActiveFile();
+			const token = await this.oauthManager.getAccessToken();
+			console.log(token);
+			try {
+				const response = await requestUrl({
+					url: 'https://www.googleapis.com/drive/v3/files?pageSize=5',
+					method: 'GET',
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+
+				console.log(response.json);
+			} catch (e) {
+				console.log(e);
+			}
+
 			new Notice(
 				activeFile
 					? `Active file: ${activeFile.path}`
@@ -31,6 +47,12 @@ export default class GdocsSyncPlugin extends Plugin {
 		});
 
 		this.addStatusBarItem().setText('Google sync');
+		this.registerObsidianProtocolHandler('gdocs-sync', (params) => {
+			void this.oauthManager.finishLogin(params);
+		});
+		this.registerObsidianProtocolHandler('gdocs-sync/oauth', (params) => {
+			void this.oauthManager.finishLogin(params);
+		});
 
 		registerCommands(this);
 		this.addSettingTab(new GdocsSyncSettingsTab(this.app, this));
@@ -40,6 +62,9 @@ export default class GdocsSyncPlugin extends Plugin {
 
 	async loadSettings() {
 		const savedData = (await this.loadData()) as Partial<PluginData> | null;
+		const savedOAuth = savedData?.oauth as
+			| { pendingVerifier?: string; pendingState?: string }
+			| undefined;
 
 		this.data = {
 			settings: Object.assign(
@@ -48,6 +73,12 @@ export default class GdocsSyncPlugin extends Plugin {
 				savedData?.settings ?? {},
 			),
 			files: Object.assign({}, savedData?.files ?? {}),
+			oauth: savedOAuth
+				? {
+						pendingVerifier: savedOAuth.pendingVerifier,
+						pendingState: savedOAuth.pendingState,
+					}
+				: {},
 		};
 	}
 

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Google Docs Sync OAuth Callback</title>
+		<script>
+			(function () {
+				const params = new URLSearchParams(window.location.search);
+				const redirect = new URL('obsidian://gdocs-sync/oauth');
+				for (const [key, value] of params.entries()) {
+					if (value) {
+						redirect.searchParams.set(key, value);
+					}
+				}
+				window.location.replace(redirect.toString());
+			})();
+		</script>
+	</head>
+	<body></body>
+</html>

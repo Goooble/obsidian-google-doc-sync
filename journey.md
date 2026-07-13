@@ -42,3 +42,8 @@ THat way i can check conflict, upload and download states.
 even for upload and download, it shoud actually compare remote and current hashes to check if theres an upload and download requirement
 
 but suprisingly, just directly modifying and updating the hash is cheaper than hashing twice! lol TODO
+
+# OAuth the beast
+
+ALright, i spent some time learning the theory and everything which was pretty cool then handed it off to copilot to vibecode which it did a very bad job at. Now its a bloated mess and i ahve no idea how its implemented and all my tokens are gone. Lesson learnt, make those damn changes muself and give the grunt work to copilot to savve tokens.
+TODO: change drive.file to drive so that i can link docuemnts as well
