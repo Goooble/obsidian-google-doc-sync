@@ -33,3 +33,12 @@ I guess the important idea is the local provider should act like a stub, or shou
 
 Do not mix up the Commands and sync manager, both should have their own error handling always.
 Commands are only one way to access the sync manager, so the manager should remember that and do its own error handling no matter what.
+
+# Sync
+
+shii its buggy
+manager is supposed to keep track of both local and remote baseline changes with the last sync
+THat way i can check conflict, upload and download states.
+even for upload and download, it shoud actually compare remote and current hashes to check if theres an upload and download requirement
+
+but suprisingly, just directly modifying and updating the hash is cheaper than hashing twice! lol TODO

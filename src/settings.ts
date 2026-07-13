@@ -1,12 +1,11 @@
-import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, SecretComponent, Setting } from 'obsidian';
 
 import GdocsSyncPlugin from './main';
 
 import type { GdocsSyncPluginSettings } from './types';
 
 export const DEFAULT_SETTINGS: GdocsSyncPluginSettings = {
-	clientID: '232',
-	clientSecret: '',
+	clientId: '',
 };
 
 export class GdocsSyncSettingsTab extends PluginSettingTab {
@@ -20,24 +19,26 @@ export class GdocsSyncSettingsTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 
-		containerEl.empty();
 		new Setting(containerEl)
-			.setName('Google account')
-			.setDesc('Connect your Google account')
+			.setName('Client ID')
+			.setDesc('Enter your Google OAuth client ID')
 			.addText((text) =>
 				text
-					.setPlaceholder('Enter your clientid')
-					.setValue(this.plugin.data.settings.clientID)
+					.setPlaceholder('Enter your client ID')
+					.setValue(this.plugin.data.settings.clientId || '')
 					.onChange(async (value) => {
-						this.plugin.data.settings.clientID = value;
+						this.plugin.data.settings.clientId = value;
 						await this.plugin.saveSettings();
 					}),
 			);
-		new Setting(containerEl).addButton((button) =>
-			button.setButtonText('Connect').onClick(async () => {
-				await this.plugin.saveSettings();
-				new Notice('Connecting to Google account...');
-			}),
-		);
+
+		new Setting(containerEl)
+			.setName('Login with Google')
+			.setDesc('Authenticate with Google')
+			.addButton((button) =>
+				button.setButtonText('Login with Google').onClick(async () => {
+					await this.plugin.oauthManager.login();
+				}),
+			);
 	}
 }

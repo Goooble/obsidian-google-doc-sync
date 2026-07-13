@@ -12,14 +12,9 @@ export interface FileMetadata {
 	googleDocID: string;
 	hash: string;
 }
-export interface FileMetadata {
-	googleDocID: string;
-	hash: string;
-}
 
 export interface GdocsSyncPluginSettings {
-	clientID: string;
-	clientSecret: string;
+	clientId: string;
 }
 
 export interface SyncProvider {
